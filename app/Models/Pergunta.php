@@ -46,7 +46,8 @@ class Pergunta extends Model
             65 => 'capacidade_avaliar',
             66 => 'analise_processo',
             67 => 'dominio_normas',
-            68 => 'provincia_candidatura'
+            68 => 'provincia_candidatura',
+            69 => 'capacidade_monitoria_avaliacao'
         ];
     }
 }

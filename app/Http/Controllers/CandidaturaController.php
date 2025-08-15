@@ -93,6 +93,11 @@ class CandidaturaController extends Controller
             $candidatura->analise_processo = $request->analise_processo;
             $candidatura->dominio_normas = $request->dominio_normas;
             $candidatura->provincia_candidatura = $request->provincia_candidatura;
+            $candidatura->capacidade_monitoria_avaliacao = $request->capacidade_monitoria_avaliacao;
+            $candidatura->experiencia_gestao_dados = $request->experiencia_gestao_dados;
+            $candidatura->experiencia_transformacao_digital = $request->experiencia_transformacao_digital;
+            $candidatura->experiencia_gestao_startups = $request->experiencia_gestao_startups;
+            
             $candidatura->vaga_id = base64_decode($request->vaga_id);   
             
             if($candidatura->save()){
@@ -220,6 +225,7 @@ class CandidaturaController extends Controller
                         ->leftjoin('opcao as op_analise_processo','op_analise_processo.id','=','cand.analise_processo')
                         ->leftjoin('opcao as op_dominio_normas','op_dominio_normas.id','=','cand.dominio_normas')
                         ->leftjoin('opcao as op_provincia_candidatura','op_provincia_candidatura.id','=','cand.provincia_candidatura')
+                        ->leftjoin('opcao as op_capacidade_monitoria_avaliacao','op_capacidade_monitoria_avaliacao.id','=','cand.capacidade_monitoria_avaliacao')
                         ->select(
                             DB::raw("(DATE_FORMAT(cand.created_at,'%d-%m-%Y')) as data_candidatura"),
                             'cand.nome',
@@ -253,6 +259,10 @@ class CandidaturaController extends Controller
                             'op_analise_processo.opcao as analise_processo',
                             'op_dominio_normas.opcao as dominio_normas',
                             'op_provincia_candidatura.opcao as provincia_candidatura',
+                            'op_capacidade_monitoria_avaliacao.opcao as capacidade_monitoria_avaliacao',
+                            'cand.experiencia_gestao_dados',
+                            'cand.experiencia_transformacao_digital',
+                            'cand.experiencia_gestao_startups'
                             )
                         ->where('cand.id',$idCandidato)
                         ->first();
@@ -293,6 +303,7 @@ class CandidaturaController extends Controller
                         ->leftjoin('pontuacao as pont_analise_processo','pont_analise_processo.opcao_id','=','cand.analise_processo')
                         ->leftjoin('pontuacao as pont_dominio_normas','pont_dominio_normas.opcao_id','=','cand.dominio_normas')
                         ->leftjoin('pontuacao as pont_provincia_candidatura','pont_provincia_candidatura.opcao_id','=','cand.provincia_candidatura')
+                        ->leftjoin('pontuacao as pont_capacidade_monitoria_avaliacao','pont_capacidade_monitoria_avaliacao.opcao_id','=','cand.capacidade_monitoria_avaliacao')
                         ->select(  
                             'cand.vaga_id as vaga_id',  
                             'pont_genero.ponto as p_genero',
@@ -309,7 +320,8 @@ class CandidaturaController extends Controller
                             'pont_capacidade_avaliar.ponto as p_capacidade_avaliar',
                             'pont_analise_processo.ponto as p_analise_processo',
                             'pont_dominio_normas.ponto as p_dominio_normas',
-                            'pont_provincia_candidatura.ponto as p_provincia_candidatura'
+                            'pont_provincia_candidatura.ponto as p_provincia_candidatura',
+                            'pont_capacidade_monitoria_avaliacao.ponto as p_capacidade_monitoria_avaliacao',
                             )
                         ->where('cand.id',$idCandidato)
                         ->first();
@@ -352,7 +364,6 @@ class CandidaturaController extends Controller
     public function pegarCandidaturaPontos($idCandidato){
         return response()->json($this->calcularCandidaturaPontuacao($idCandidato));
     }
-
 
     public function debug(){
         $cont = 0;
