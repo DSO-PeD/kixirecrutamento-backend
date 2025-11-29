@@ -73,7 +73,8 @@ class VagasController extends Controller
                             'provincia',
                             'data_inicio',
                             'data_fim',
-                            'descricao'
+                            'descricao',
+                            'visibilidade'
                         )
                         ->where('estado',1)
                         ->orderBy('data_fim','desc')

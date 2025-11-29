@@ -17,7 +17,7 @@ class CandidaturaController extends Controller
         try{
             $request->validate([
                 'nome' => 'required|string|min:2|max:100|regex:/^[\pL\s\-]+$/u',
-                'numero_bilhete' => 'min:8|max:15',
+                //'numero_bilhete' => 'min:8|max:15',
                 'anexo_bilhete' => 'required|mimes:pdf|max:2048', // 2MB = 2048 KB
                 'anexo_foto' => 'required|mimes:jpg,jpeg,png,webp|max:2048',
                 'links_profissional' => 'max:100',
@@ -97,6 +97,8 @@ class CandidaturaController extends Controller
             $candidatura->experiencia_gestao_dados = $request->experiencia_gestao_dados;
             $candidatura->experiencia_transformacao_digital = $request->experiencia_transformacao_digital;
             $candidatura->experiencia_gestao_startups = $request->experiencia_gestao_startups;
+            $candidatura->direcao = $request->direcao;
+            $candidatura->razao_candidatura = $request->razao_candidatura;
             
             $candidatura->vaga_id = base64_decode($request->vaga_id);   
             
@@ -206,12 +208,12 @@ class CandidaturaController extends Controller
         return response()->json($candidaturas);
     }
 
-    public function pegarCandidatura($idCandidato){
+    public function pegarCandidatura($idCandidato){ 
         $candidatura = DB::table('candidatura as cand')
-                        ->join('opcao as op_genero','op_genero.id','=','cand.genero')
-                        ->join('opcao as op_grau_acad','op_grau_acad.id','=','cand.grau_academico')
-                        ->join('opcao as op_ondeViu','op_ondeViu.id','=','cand.onde_viu_vaga')
-                        ->join('opcao as op_trabalho_actual','op_trabalho_actual.id','=','cand.trabalho_actual')
+                        ->leftjoin('opcao as op_genero','op_genero.id','=','cand.genero')
+                        ->leftjoin('opcao as op_grau_acad','op_grau_acad.id','=','cand.grau_academico')
+                        ->leftjoin('opcao as op_ondeViu','op_ondeViu.id','=','cand.onde_viu_vaga')
+                        ->leftjoin('opcao as op_trabalho_actual','op_trabalho_actual.id','=','cand.trabalho_actual')
                         ->leftjoin('opcao as op_ingles','op_ingles.id','=','cand.ingles')
                         ->leftjoin('opcao as op_word','op_word.id','=','cand.word')
                         ->leftjoin('opcao as op_excel','op_excel.id','=','cand.excel')
@@ -246,6 +248,8 @@ class CandidaturaController extends Controller
                             'cand.links_profissional',
                             'cand.referencias',
                             'cand.experiencias',
+                            'cand.direcao',
+                            'cand.razao_candidatura',
                             'op_ingles.opcao as ingles',
                             'op_word.opcao as word',
                             'op_excel.opcao as excel',
@@ -265,7 +269,7 @@ class CandidaturaController extends Controller
                             'cand.experiencia_gestao_startups'
                             )
                         ->where('cand.id',$idCandidato)
-                        ->first();
+                        ->first(); 
 
         if(is_object($candidatura)){ 
             if($candidatura->referencias=='|'){
