@@ -37,6 +37,13 @@ return new class extends Migration
             $table->foreignId('software_designer')->constrained('opcao','id')->nullable();
             $table->foreignId('primavera')->constrained('opcao','id')->nullable();
             $table->foreignId('vaga_id')->constrained('vagas','id');
+
+            $table->foreignId('capacidade_monitoria_avaliacao')->constrained('opcao','id');
+            $table->string('experiencia_gestao_dados');
+            $table->string('experiencia_transformacao_digital');
+            $table->string('experiencia_gestao_startups');
+
+
             $table->timestamps();
         });
     }

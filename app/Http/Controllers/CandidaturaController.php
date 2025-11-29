@@ -17,7 +17,7 @@ class CandidaturaController extends Controller
         try{
             $request->validate([
                 'nome' => 'required|string|min:2|max:100|regex:/^[\pL\s\-]+$/u',
-                'numero_bilhete' => 'min:8|max:15',
+                //'numero_bilhete' => 'min:8|max:15',
                 'anexo_bilhete' => 'required|mimes:pdf|max:2048', // 2MB = 2048 KB
                 'anexo_foto' => 'required|mimes:jpg,jpeg,png,webp|max:2048',
                 'links_profissional' => 'max:100',
@@ -93,6 +93,13 @@ class CandidaturaController extends Controller
             $candidatura->analise_processo = $request->analise_processo;
             $candidatura->dominio_normas = $request->dominio_normas;
             $candidatura->provincia_candidatura = $request->provincia_candidatura;
+            $candidatura->capacidade_monitoria_avaliacao = $request->capacidade_monitoria_avaliacao;
+            $candidatura->experiencia_gestao_dados = $request->experiencia_gestao_dados;
+            $candidatura->experiencia_transformacao_digital = $request->experiencia_transformacao_digital;
+            $candidatura->experiencia_gestao_startups = $request->experiencia_gestao_startups;
+            $candidatura->direcao = $request->direcao;
+            $candidatura->razao_candidatura = $request->razao_candidatura;
+            
             $candidatura->vaga_id = base64_decode($request->vaga_id);   
             
             if($candidatura->save()){
@@ -201,12 +208,12 @@ class CandidaturaController extends Controller
         return response()->json($candidaturas);
     }
 
-    public function pegarCandidatura($idCandidato){
+    public function pegarCandidatura($idCandidato){ 
         $candidatura = DB::table('candidatura as cand')
-                        ->join('opcao as op_genero','op_genero.id','=','cand.genero')
-                        ->join('opcao as op_grau_acad','op_grau_acad.id','=','cand.grau_academico')
-                        ->join('opcao as op_ondeViu','op_ondeViu.id','=','cand.onde_viu_vaga')
-                        ->join('opcao as op_trabalho_actual','op_trabalho_actual.id','=','cand.trabalho_actual')
+                        ->leftjoin('opcao as op_genero','op_genero.id','=','cand.genero')
+                        ->leftjoin('opcao as op_grau_acad','op_grau_acad.id','=','cand.grau_academico')
+                        ->leftjoin('opcao as op_ondeViu','op_ondeViu.id','=','cand.onde_viu_vaga')
+                        ->leftjoin('opcao as op_trabalho_actual','op_trabalho_actual.id','=','cand.trabalho_actual')
                         ->leftjoin('opcao as op_ingles','op_ingles.id','=','cand.ingles')
                         ->leftjoin('opcao as op_word','op_word.id','=','cand.word')
                         ->leftjoin('opcao as op_excel','op_excel.id','=','cand.excel')
@@ -220,6 +227,7 @@ class CandidaturaController extends Controller
                         ->leftjoin('opcao as op_analise_processo','op_analise_processo.id','=','cand.analise_processo')
                         ->leftjoin('opcao as op_dominio_normas','op_dominio_normas.id','=','cand.dominio_normas')
                         ->leftjoin('opcao as op_provincia_candidatura','op_provincia_candidatura.id','=','cand.provincia_candidatura')
+                        ->leftjoin('opcao as op_capacidade_monitoria_avaliacao','op_capacidade_monitoria_avaliacao.id','=','cand.capacidade_monitoria_avaliacao')
                         ->select(
                             DB::raw("(DATE_FORMAT(cand.created_at,'%d-%m-%Y')) as data_candidatura"),
                             'cand.nome',
@@ -240,6 +248,8 @@ class CandidaturaController extends Controller
                             'cand.links_profissional',
                             'cand.referencias',
                             'cand.experiencias',
+                            'cand.direcao',
+                            'cand.razao_candidatura',
                             'op_ingles.opcao as ingles',
                             'op_word.opcao as word',
                             'op_excel.opcao as excel',
@@ -253,9 +263,13 @@ class CandidaturaController extends Controller
                             'op_analise_processo.opcao as analise_processo',
                             'op_dominio_normas.opcao as dominio_normas',
                             'op_provincia_candidatura.opcao as provincia_candidatura',
+                            'op_capacidade_monitoria_avaliacao.opcao as capacidade_monitoria_avaliacao',
+                            'cand.experiencia_gestao_dados',
+                            'cand.experiencia_transformacao_digital',
+                            'cand.experiencia_gestao_startups'
                             )
                         ->where('cand.id',$idCandidato)
-                        ->first();
+                        ->first(); 
 
         if(is_object($candidatura)){ 
             if($candidatura->referencias=='|'){
@@ -293,6 +307,7 @@ class CandidaturaController extends Controller
                         ->leftjoin('pontuacao as pont_analise_processo','pont_analise_processo.opcao_id','=','cand.analise_processo')
                         ->leftjoin('pontuacao as pont_dominio_normas','pont_dominio_normas.opcao_id','=','cand.dominio_normas')
                         ->leftjoin('pontuacao as pont_provincia_candidatura','pont_provincia_candidatura.opcao_id','=','cand.provincia_candidatura')
+                        ->leftjoin('pontuacao as pont_capacidade_monitoria_avaliacao','pont_capacidade_monitoria_avaliacao.opcao_id','=','cand.capacidade_monitoria_avaliacao')
                         ->select(  
                             'cand.vaga_id as vaga_id',  
                             'pont_genero.ponto as p_genero',
@@ -309,7 +324,8 @@ class CandidaturaController extends Controller
                             'pont_capacidade_avaliar.ponto as p_capacidade_avaliar',
                             'pont_analise_processo.ponto as p_analise_processo',
                             'pont_dominio_normas.ponto as p_dominio_normas',
-                            'pont_provincia_candidatura.ponto as p_provincia_candidatura'
+                            'pont_provincia_candidatura.ponto as p_provincia_candidatura',
+                            'pont_capacidade_monitoria_avaliacao.ponto as p_capacidade_monitoria_avaliacao',
                             )
                         ->where('cand.id',$idCandidato)
                         ->first();
@@ -352,7 +368,6 @@ class CandidaturaController extends Controller
     public function pegarCandidaturaPontos($idCandidato){
         return response()->json($this->calcularCandidaturaPontuacao($idCandidato));
     }
-
 
     public function debug(){
         $cont = 0;
