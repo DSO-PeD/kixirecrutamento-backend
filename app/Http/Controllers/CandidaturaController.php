@@ -99,6 +99,7 @@ class CandidaturaController extends Controller
             $candidatura->experiencia_gestao_startups = $request->experiencia_gestao_startups;
             $candidatura->direcao = $request->direcao;
             $candidatura->razao_candidatura = $request->razao_candidatura;
+            $candidatura->experiencia_trabalho_comunitario = $request->experiencia_trabalho_comunitario;
             
             $candidatura->vaga_id = base64_decode($request->vaga_id);   
             
@@ -250,6 +251,7 @@ class CandidaturaController extends Controller
                             'cand.experiencias',
                             'cand.direcao',
                             'cand.razao_candidatura',
+                            'cand.experiencia_trabalho_comunitario',
                             'op_ingles.opcao as ingles',
                             'op_word.opcao as word',
                             'op_excel.opcao as excel',
