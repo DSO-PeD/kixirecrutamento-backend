@@ -199,10 +199,10 @@ class CandidaturaController extends Controller
 
                     $candidaturas = $query
                                         ->paginate(100)
-                                        ->through(function($candidato){
-                                            $candidato->anexo_foto = asset('storage/' . $candidato->anexo_foto); 
-                                            $candidato->anexo_bilhete = asset('storage/' . $candidato->anexo_bilhete); 
-                                            $candidato->anexo_cv = asset('storage/' . $candidato->anexo_cv);                
+                                        ->through(function($candidato){                                            
+                                            $candidato->anexo_foto = url('/arquivo/' . $candidato->anexo_foto);  
+                                            $candidato->anexo_bilhete = url('/arquivo/' . $candidato->anexo_bilhete); 
+                                            $candidato->anexo_cv = asset('/arquivo/' . $candidato->anexo_cv);                
                                             return $candidato;
                                         });
                                         
@@ -279,11 +279,14 @@ class CandidaturaController extends Controller
             }
 
             if($candidatura->anexo_foto)
-                $candidatura->anexo_foto = asset('storage/' . $candidatura->anexo_foto); 
+                //$candidatura->anexo_foto = asset('storage/' . $candidatura->anexo_foto); 
+                $candidatura->anexo_foto = url('/arquivo/' . $candidatura->anexo_foto); 
             if($candidatura->anexo_bilhete)
-                $candidatura->anexo_bilhete = asset('storage/' . $candidatura->anexo_bilhete); 
+                //$candidatura->anexo_bilhete = asset('storage/' . $candidatura->anexo_bilhete); 
+                $candidatura->anexo_bilhete = url('/arquivo/' . $candidatura->anexo_bilhete); 
             if($candidatura->anexo_cv)
-                $candidatura->anexo_cv = asset('storage/' . $candidatura->anexo_cv);
+                //$candidatura->anexo_cv = asset('storage/' . $candidatura->anexo_cv);
+                $candidatura->anexo_cv = url('/arquivo/' . $candidatura->anexo_cv); 
             
             $candidatura->idade = Carbon::parse($candidatura->nascimento)->age.' Anos';
         }

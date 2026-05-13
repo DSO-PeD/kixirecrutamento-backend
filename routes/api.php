@@ -64,4 +64,3 @@ Route::get('getPieCharts',[EstatisticaController::class,'pieChartMostrar']);
 Route::get('getBarCharts',[EstatisticaController::class,'barChartMostrar']);
 
 Route::get('getRelatorioResumo/{idVaga}',[RelatorioController::class,'gerarRelatorioResumo']);
-
