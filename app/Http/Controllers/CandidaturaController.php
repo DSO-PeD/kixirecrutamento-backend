@@ -17,19 +17,28 @@ class CandidaturaController extends Controller
         try{
             $request->validate([
                 'nome' => 'required|string|min:2|max:100|regex:/^[\pL\s\-]+$/u',
-                //'numero_bilhete' => 'min:8|max:15',
+                'numero_bilhete' => 'min:8|max:15',
                 'anexo_bilhete' => 'required|mimes:pdf|max:2048', // 2MB = 2048 KB
                 'anexo_foto' => 'required|mimes:jpg,jpeg,png,webp|max:2048',
-                'links_profissional' => 'max:100',
+                'links_profissional' => 'max:255',
                 'telefone1' => 'min:9|max:9',
                 'morada' => 'max:100',
                 'area_formacao' => 'max:100',
-                'experiencias' => 'max:255',
+                'experiencias' => 'max:400',
                 //'turnstile_token' => 'required|string'
             ],[
                 'experiencias' => 'A experiência profissional não pode exceder 400 caractéres.',
                 //'turnstile_token.required' => 'Deve confirmar que não é robô ou actualiza a página'
             ]);
+
+            // Verifica duplo registo
+            $existingCandidatura = Candidatura::where('numero_bilhete', $request->numero_bilhete)
+                                                ->where('vaga_id', base64_decode($request->vaga_id))
+                                                ->first();
+
+            if ($existingCandidatura) {
+                return response()->json(['error' => true, 'message' => 'Já existe uma candidatura para este número de bilhete.'], 409);
+            }
 
             // Verify Turnstile token with Cloudflare
             /*$response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
@@ -114,7 +123,7 @@ class CandidaturaController extends Controller
 
             if($status1 && $status2){
                 DB::commit();
-                return response()->json('Candidatura enviada com sucesso',200);
+                return response()->json('Candidatura enviada com sucesso',201);
             }
             DB::rollBack();
             return response()->json('Houve um problema ao submeter a candidatura');
