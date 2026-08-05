@@ -128,7 +128,10 @@ class CandidaturaController extends Controller
             DB::rollBack();
             return response()->json('Houve um problema ao submeter a candidatura');
         } catch(Exception $e){
-            return 'erro ao registar';
+            return response()->json([
+                'success' => false,
+                'message' => 'Houve um problema ao submeter a candidatura, tente novamente.'
+            ], 500);
         }
     }
 
@@ -138,7 +141,7 @@ class CandidaturaController extends Controller
         $arrayPerguntasPontuaveis = Pergunta::arrayPerguntasPontuaveis(); //Array contendo todas perguntas e suas posições (ID)7        
         
         $query = DB::table('candidatura as cand')
-                        ->join('opcao as op_genero','op_genero.id','=','cand.genero')
+                        ->leftjoin('opcao as op_genero','op_genero.id','=','cand.genero')
                         ->select(
                             'cand.id',
                             'cand.nome',
@@ -180,7 +183,7 @@ class CandidaturaController extends Controller
     
     public function listarCandidaturasFiltro($idVaga,$filtro,Request $request){
         $query = DB::table('candidatura as cand')
-                    ->join('opcao as op_genero','op_genero.id','=','cand.genero')
+                    ->leftjoin('opcao as op_genero','op_genero.id','=','cand.genero')
                     ->select(
                         'cand.id',
                         'cand.nome',
