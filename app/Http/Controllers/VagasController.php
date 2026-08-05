@@ -37,6 +37,7 @@ class VagasController extends Controller
         $vaga->data_fim = $request->data_fim;
         $vaga->estado = 0;
         $vaga->descricao = $request->descricao;
+        $vaga->visibilidade = $request->visibilidade;
         
         if($vaga->save()){
             return response()->json('Registado com sucesso');
@@ -46,7 +47,7 @@ class VagasController extends Controller
     
     public function listarVagas() {
         $vagas = Vaga::select(
-            'id', 'funcao', 'provincia', 'data_inicio', 'data_fim', 'estado',
+            'id', 'funcao', 'provincia', 'data_inicio', 'data_fim', 'estado','visibilidade',
             DB::raw("
                 CASE estado
                     WHEN 0 THEN 'Registada'                  
@@ -95,7 +96,8 @@ class VagasController extends Controller
                             'descricao',
                             'data_inicio',
                             'data_fim',
-                            'estado'
+                            'estado',
+                            'visibilidade'
                             //DB::raw("(DATE_FORMAT(data_inicio,'%d-%m-%Y')) as data_inicio"),
                             //DB::raw("(DATE_FORMAT(data_fim,'%d-%m-%Y')) as data_fim")
                         )
